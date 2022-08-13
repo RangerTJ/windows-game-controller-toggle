@@ -5,7 +5,7 @@ WORK IN PROGRESS: Currently have a working .bat script to pull device summaries 
 
 Skeleton code has been uploaded to main.py. Has the core code outline, but has not been tested at all yet and is very, very likely to be broken. Intended to show WIP status, not provide a functional program.... yet!
 
-Known Issues / Development Goals:
+Known Issues / Development Notes:
 ---------------------------------
 Probably need to revamp parsing stop points / last lines
 
@@ -21,15 +21,16 @@ Make sure methods are located where appropriate
 Always do a check to build dictionary on program boot
 
 Need to make batch file to call the script that can be run as admin, since admin needed for enable/disable
+
 MAKE SURE X-Box controllers aren't being turned off too
 
 For now: only turn off devices with "HID-compliant game controller" description
-    May need helper method to find last char in string if getting index errors or infinite loops with parsing?
+    *May need helper method to find last char in string if getting index errors or infinite loops with parsing?
     
 FUTURE METHODS:
-    Display device summaries (for each dict entry show device name + info)
-    Mod to check summary - if error with getting name, just make description + short ID the name
-    Disable specific device command
-    Enable specific device command
+    *Display device summaries (for each dict entry show device name + info)
+    *Mod to check summary - if error with getting name, just make description + short ID the name
+    *Disable specific device command
+    *Enable specific device command
 
 Files provided as-as, with no support. I'm not liable if you break something!
