@@ -8,16 +8,24 @@ Skeleton code has been uploaded to main.py. Has the core code outline, but has n
 Known Issues / Development Goals:
 ---------------------------------
 Probably need to revamp parsing stop points / last lines
+
 May be able to greatly simplify parsing of OEMName - check if the actual name always starts at the same char index
     May be index 24, 25, or 26?
+    
 Check syntax for \ within a quote to make sure they're used as expected
+
 Need to add actual commands/scripts to run these when starting the app (e.g. prompt for enable/disable/check on boot)
+
 Make sure methods are located where appropriate
+
 Always do a check to build dictionary on program boot
+
 Need to make batch file to call the script that can be run as admin, since admin needed for enable/disable
 MAKE SURE X-Box controllers aren't being turned off too
+
 For now: only turn off devices with "HID-compliant game controller" description
     May need helper method to find last char in string if getting index errors or infinite loops with parsing?
+    
 FUTURE METHODS:
     Display device summaries (for each dict entry show device name + info)
     Mod to check summary - if error with getting name, just make description + short ID the name
