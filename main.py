@@ -22,7 +22,7 @@ class InterfaceDevice:
         self._oem_name = ""
 
     # Set methods for all data members of a device object
-    def set_isntance_id(self, instance_id: str):
+    def set_instance_id(self, instance_id: str):
         self._instance_id = instance_id
 
     def set_short_id(self, short_id: str):
@@ -35,7 +35,7 @@ class InterfaceDevice:
         self._oem_name = oem_name
 
     # Get methods for the device object's data members
-    def get_isntance_id(self):
+    def get_instance_id(self):
         return self._instance_id
 
     def get_short_id(self):
@@ -74,8 +74,9 @@ class ComputerDevices:
 
         # subprocess.run('ControllerCheck.bat')                                # If running off external .bat
 
+        # MAY NEED TO RE-EVALUATTE OUTPUT FILE PATH - DOES %~dp0 work for location of the python script?
         # Log device information to ControllerCheck.txt and bring it back in so that we can parse it
-        subprocess.run("pnputil /enum-devices /class HIDclass > %~dp0ControllerCheck.txt")
+        subprocess.run("pnputil /enum-devices /class HIDclass > %~dp0ControllerCheck.txt 2>&1")
         controller_summary = open('ControllerCheck.txt')                       # OPEN CONTROLLER SUMMARY TXT
         current_device = None
         for line in controller_summary:
@@ -102,7 +103,7 @@ class ComputerDevices:
 
         # Get OEM Names for any game controllers that remain
         for device in self._device_dict:
-            self._device_dict[device].set_oem_name(self._get_name(device.get_short_id))
+            self._device_dict[device].set_oem_name(self._get_name(device))
 
     def disable_controllers(self):
         """
@@ -112,25 +113,28 @@ class ComputerDevices:
         """
 
         for device in self._device_dict:
-            if device[1] == "disabled":
-                disable_cmd = 'pnputil /disable-device ' + device[0] + ' "HID\VID_231D&PID_0201\\7&37d7a043&0&0000"'
+            if device.get_status == "Started":
+                disable_cmd = 'pnputil /disable-device ' + deviceget_instance_id + \
+                              ' "HID\VID_231D&PID_0201\\7&37d7a043&0&0000"'
                 subprocess.run(disable_cmd)
         self.check_devices()
 
     def enable_controllers(self):  # AKA RESTORE THINGS TO "normal" status
         """
-        Runs a command script to disable every controller in the HID device list that is currently started.
+        Runs a command script to enable every controller in the HID device list that is currently disabled.
 
         No parameters or returns.
         """
 
         for device in self._device_dict:
-            if device[1] == "disabled":
-                enable_cmd = 'pnputil /enable-device ' + device[0] + ' "HID\VID_231D&PID_0201\\7&37d7a043&0&0000"'
+            if device.get_status == "Disabled":
+                enable_cmd = 'pnputil /enable-device ' + device.get_instance_id + \
+                             ' "HID\VID_231D&PID_0201\\7&37d7a043&0&0000"'
                 subprocess.run(enable_cmd)
         self.check_devices()
 
-    def _get_name(self, short_id: str) -> str:
+    # SHOULD PROBABLY CHANGE TO USING OBJECT AS INPUT
+    def _get_name(self, device: obj) -> str:
         """
         Runs a registry query to using the device's short ID. Generates a text file containing the OEMName, parses it,
         stores it, and returns it, so that it can be added to the device dictionary.
@@ -142,19 +146,27 @@ class ComputerDevices:
         """
 
         oem_name_query = 'reg query "HKEY_CURRENT_USER\System\CurrentControlSet\Control\MediaProperties\
-                            \PrivateProperties\Joystick\OEM\\' + short_id + '" /v OEMName > %~dp0oem_name.txt'
+                    \PrivateProperties\Joystick\OEM\\' + device.get_short_id + '" /v OEMName > %~dp0oem_name.txt 2>&1'
         subprocess.run(oem_name_query)
         oem_name_txt = open('ControllerCheck.txt')
-        target_line = oem_name_txt[2]
-        char_index = 26                                             # Start transcibing from first char index of name
-        oem_name = ""
-        while target_line[char_index] is not None:                  # Transcribe until chars stop
-            oem_name = oem_name + line[char_index]
-            char_index += 1
-        # NEED TO HANDLE ERRORS/NO RETURNS - WHAT IS RETURN VALUE OF VALUE NOT FOUND?
 
+        # When there's an error finding the target registry key for an OEM Name
+        if oem_name_txt[0] == "ERROR: The system was unable to find the specified registry key or value.":
+            print("Error finding the registry key for this device. Assigning placeholder name.")
+            return str(device.get_description + ": " + device.get_short_id)
 
-                # ORIGINAL DRAFT METHOD - MAY KEEP IF START CHAR IS NOT STATIC - BUT GO STRAIGHT TO TARGET LINE INSTEAD OF FOR LOOP
+        # When no errors reported
+        else:
+            target_line = oem_name_txt[2]
+            char_index = 26                                             # Start transcibing from first char index of name
+            oem_name = ""
+            while target_line[char_index] is not None:                  # Transcribe until chars stop
+                oem_name = oem_name + line[char_index]
+                char_index += 1
+            oem_name_txt.close()
+            return oem_name
+
+                # ORIGINAL PARSE METHOD - MAY KEEP IF START CHAR IS NOT STATIC - BUT GO STRAIGHT TO TARGET LINE INSTEAD OF FOR LOOP
                 # for line in oem_name_txt:
                 #     if "OEMName" in line:
                 #         char_index = 0
@@ -173,8 +185,6 @@ class ComputerDevices:
                 #             oem_name = oem_name + line[char_index]
                 #             char_index += 1
 
-        oem_name_txt.close()
-        return oem_name
 
     def _parse_device_check_line(self, line: str) -> str:
         """
