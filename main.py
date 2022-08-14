@@ -76,6 +76,9 @@ class ComputerDevices:
 
         # MAY NEED TO RE-EVALUATTE OUTPUT FILE PATH - DOES %~dp0 work for location of the python script?
         # Log device information to ControllerCheck.txt and bring it back in so that we can parse it
+        # ERROR IN OPENING CONTROLLER CHECK - NOT FOUND SINCE NOT SAVING TO CORRECT PLACE
+        # MAY NEED TO LOOK INTO IMPORTING RESULTS INTO PYTHON AND WRITING FROM THERE?
+        # WILL BE AN ISSUE IN GET NAME TOO
         subprocess.run("pnputil /enum-devices /class HIDclass > %~dp0ControllerCheck.txt 2>&1")
         controller_summary = open('ControllerCheck.txt')                       # OPEN CONTROLLER SUMMARY TXT
         current_device = None
@@ -134,7 +137,7 @@ class ComputerDevices:
         self.check_devices()
 
     # SHOULD PROBABLY CHANGE TO USING OBJECT AS INPUT
-    def _get_name(self, device: obj) -> str:
+    def _get_name(self, device: object) -> str:
         """
         Runs a registry query to using the device's short ID. Generates a text file containing the OEMName, parses it,
         stores it, and returns it, so that it can be added to the device dictionary.
@@ -232,9 +235,20 @@ class ComputerDevices:
         return device_id                                            # Return the short ID for the device for use in
                                                                     # retrieving the device's exact name.
 
+# Start up script - populate the device dictionary
+my_devices = ComputerDevices()
+my_devices.check_devices()
 
-
-
+# Prompt the user for a decision
+decision = input("Enter 'c' to check device status, 'e' to enable devices, or 'd' to disable devices.")
+if decision == "c":
+    my_devices.check_devices()
+elif decision == "e":
+    my_devices.enable_controllers()
+elif decision == "d":
+    my_devices.disable_controllers()
+# else:
+#     # May not be necessary? Print you may close application? Close command? Loop back for invalid inputs?
 
 
 
