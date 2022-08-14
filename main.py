@@ -93,15 +93,16 @@ class ComputerDevices:
         controller_summary.close()                                              # CLOSE CONTROLLER SUMMARY TXT
 
         # Clear non-controller devices from the dictionary
-        for device in self._device_dict:
+        del_list = []
+        for device in self._device_dict:                                        # Note everything to be deleted
             if device.get_description != "HID-compliant game controller":
-                del device
-            # May change index due to deleting in-place... try using pop if it doesn't work
-            # or adding non-controllers to list of non-controller keys, then in next iteration delete all non-controllers
+                del_list.append(device)
+        for device in del_list:                                                 # Delete everything on the delete list
+            del device
 
-        # Get OEM Names after clearing all the non-controllers from the dictionary to reduce errors/not wase cycles
+        # Get OEM Names for any game controllers that remain
         for device in self._device_dict:
-            self._device_dict[device].set_oem_name = (self._get_name(device.get_short_id))
+            self._device_dict[device].set_oem_name(self._get_name(device.get_short_id))
 
     def disable_controllers(self):
         """
