@@ -8,7 +8,7 @@ This program sidesteps issues with certain games where the games themselves are 
 
 Also, it lets me put my VKB joysticks sticks in time-out so that my PC can actually go into sleep mode.
 
-*Currently some first iteration issues - most X-box style controllers will be disabled/enable with other devices. See work-around for blutooth/wireless controllers in "How Does it Work? / Development Notes. Wired controllers will probably have to wait for profile support.
+*Currently some first iteration issues - most X-box style controllers will be disabled/enabled with other devices. See work-around for blutooth/wireless controllers in "How Does it Work? / Development Notes. Wired controllers will probably have to wait for profile support.
 
 How Does it Work?
 ------------------
