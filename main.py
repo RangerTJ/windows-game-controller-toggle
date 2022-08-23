@@ -289,15 +289,3 @@ if decision == "e":
 elif decision == "d":
      my_devices.disable_controllers()
      my_devices.summarize_game_controllers()
-# else:
-#     # Future use
-
-
-# CURRENT EXPECTED ISSUES / FUTURE WORK
-# Specific lists of methods contained in classes in doc strings.
-
-# FUTURE METHODS / IDEAS:
-    # Display device summaries (for each dict entry show device name + info)
-    # Disable specific device command
-    # Enable specific device command
-    
