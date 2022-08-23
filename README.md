@@ -29,7 +29,7 @@ May work on earlier versions of Python 3, but no guarantees.
 
 Development Notes
 -----------------
--Current Priority Issue: Controllers that are described as "HID-compliant game controller" will be disabled too (which is currently happening to my own blutooth X-Box One Controller). To get around this will require profiles/flags and commands to enable/disable only specific devices, which I'd like to implement next. Oddly, disabling the blutooth-connected X-Box controller didn't disable it right away (recieved a message about requiring a restart before it would take effect). Current work-around is to just not turn on any blutooth controllers until after flight sticks are disabled, so they don't get caught in the crossfire.
+-Current Priority Issue: ALL Controllers that are described as "HID-compliant game controller" will be disabled (currently happening to my own blutooth X-Box One Controller). To get around this will require profiles/flags and commands to enable/disable only specific devices, which I'd like to implement next. Oddly, disabling the blutooth-connected X-Box controller didn't disable it right away (recieved a message about requiring a restart before it would take effect). Current work-around is to just not turn on any blutooth controllers until after flight sticks are disabled, so they don't get caught in the crossfire.
 
 -Tested by myself on Windows 10 only
 
