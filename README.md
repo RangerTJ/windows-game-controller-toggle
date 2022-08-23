@@ -2,11 +2,13 @@
 
 What is this Program?
 ---------------------
-In short, this program is designed to leave an X-Box controller (controller with a description of XINPUT compatible input device) running like normal, while disabling all other game controllers currently connected to your Windows PC.
+In short, this program is designed to leave an X-Box controller (controller with a description of XINPUT compatible input device) running like normal*, while disabling all other game controllers currently connected to your Windows PC.
 
 This program sidesteps issues with certain games where the games themselves are not programmed to handle multiple input devices, even if some devices are unused. Generally, this occurs in games designed around a console-style controller that don't know what to do when they also find other devices plugged in like joysticks, rudder pedals, etc. This disables unused devices via software to avoid conflicts and having to unplug/replug devices, which can really mess up painstakingly set up controller bindings in some games (*cough* Star Citizen *cough*). This is basically an automated way of going into Device Manger and right-clicking all the game controllers and disabling or enabling them, but without the tedium or having to guess at vague device descriptions and do it by hand every single time.
 
 Also, it lets me put my VKB joysticks sticks in time-out so that my PC can actually go into sleep mode.
+
+*Currently some first iteration issues - most X-box style controllers will be disabled/enable with other devices. See work-around for blutooth/wireless controllers in "How Does it Work? / Development Notes. Wired controllers will probably have to wait for profile support.
 
 How Does it Work?
 ------------------
