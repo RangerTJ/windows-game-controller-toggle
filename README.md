@@ -4,13 +4,13 @@ What is this Program?
 ---------------------
 In short, this program is designed to leave an X-Box controller running like normal, while disabling all other game controllers currently connected to your Windows PC.
 
-This program sidesteps issues with certain games where the games themselves are not programmed to handle multiple input devices, even if some devices are unused. Generally, this occurs in games designed around a console-style controller that don't know what to do when they also find other devices plugged in like joysticks, rudder pedals, etc. This program is designed to disable unused devices via software to avoid conflicts and having to unplug/replug devices, which can really mess up painstakingly set up controller bindings in some games. This is basically an automated way of going into Device Manger and right-clicking all the game controllers and disabling or enabling them, but without the tedium or having to guess at vague device descriptions and do it by hand every single time.
+This program sidesteps issues with certain games where the games themselves are not programmed to handle multiple input devices, even if some devices are unused. Generally, this occurs in games designed around a console-style controller that don't know what to do when they also find other devices plugged in like joysticks, rudder pedals, etc. This disables unused devices via software to avoid conflicts and having to unplug/replug devices, which can really mess up painstakingly set up controller bindings in some games (*cough* Star Citizen *cough*). This is basically an automated way of going into Device Manger and right-clicking all the game controllers and disabling or enabling them, but without the tedium or having to guess at vague device descriptions and do it by hand every single time.
 
 Also, it lets me put my VKB joysticks sticks in time-out so that my PC can actually go into sleep mode.
 
 How Does it Work?
 ------------------
-Assuming you have python 3 installed (and on Windows 10 or higher), you should be able to just place "main.py" and "Toggle Device (run as admin).bat" in the same folder anywhere on your computer. Then, run "Toggle Device (run as admin).bat" as an administrator. This will fire up the python script with elevated privleges so that you can actually enable and disable devices as needed. You can run the .bat or script without it, just you'll get an error when trying to turn stuff on or off (but you can still view the summary of currently plugged in toggle-able devices and their current status).
+Just place "main.py" and "Toggle Device (run as admin).bat" in the same folder anywhere on your computer (a non-admin folder is probably ideal). Then, run "Toggle Device (run as admin).bat" as an administrator. This will fire up the python script with elevated privleges so that you can actually enable and disable devices as needed. You can run the .bat or script without it, just you'll get an error when trying to turn stuff on or off. You can still view the summary of currently plugged in toggle-able devices and their current status, but that's it without admin privleges. Since this requires admin rights, I encourage you to check out the source code, so you can be sure that everything is kosher.
 
 When prompted by the cmd interface, simply enter 'e' to enable or 'd' to disable, followed by enter! You should get a printout of whether or not the command worked for each affected device, and a summary of device status.
 
@@ -23,7 +23,7 @@ Windows 10
 Python 3.10 (https://www.python.org/downloads/)
 
 
-Fair chance it'll work on Windows 11 too, unless commands have changed.
+There is a fair chance this will work on Windows 11 too, unless commands have changed.
 May work on earlier versions of Python 3, but no guarantees.
 
 
