@@ -6,6 +6,7 @@ In short, this program is designed to leave an X-Box controller running like nor
 
 This program sidesteps issues with certain games where the games themselves are not programmed to handle multiple input devices, even if some devices are unused. Generally, this occurs in games designed around a console-style controller that don't know what to do when they also find other devices plugged in like joysticks, rudder pedals, etc. This program is designed to disable unused devices via software to avoid conflicts and having to unplug/replug devices, which can really mess up painstakingly set up controller bindings in some games. This is basically an automated way of going into Device Manger and right-clicking all the game controllers and disabling or enabling them, but without the tedium or having to guess at vague device descriptions and do it by hand every single time.
 
+Also, it lets me put my VKB joysticks sticks in time-out so that my PC can actually go into sleep mode.
 
 How Does it Work?
 ------------------
