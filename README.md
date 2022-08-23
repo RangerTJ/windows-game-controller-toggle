@@ -2,7 +2,7 @@
 
 What is this Program?
 ---------------------
-In short, this program is designed to leave an X-Box controller running like normal, while disabling all other game controllers currently connected to your Windows 10 PC (and probably Windows 11 too, assuming the console commands are the same).
+In short, this program is designed to leave an X-Box controller running like normal, while disabling all other game controllers currently connected to your Windows PC.
 
 This program sidesteps issues with certain games where the games themselves are not programmed to handle multiple input devices, even if some devices are unused. Generally, this occurs in games designed around a console-style controller that don't know what to do when they also find other devices plugged in like joysticks, rudder pedals, etc. This program is designed to disable unused devices via software to avoid conflicts and having to unplug/replug devices, which can really mess up painstakingly set up controller bindings in some games. This is basically an automated way of going into Device Manger and right-clicking all the game controllers and disabling or enabling them, but without the tedium or having to guess at vague device descriptions and do it by hand every single time.
 
@@ -15,9 +15,20 @@ Assuming you have python 3 installed (and on Windows 10 or higher), you should b
 When prompted by the cmd interface, simply enter 'e' to enable or 'd' to disable, followed by enter! You should get a printout of whether or not the command worked for each affected device, and a summary of device status.
 
 
+Requirements
+------------
+
+Windows 10
+
+Python 3.10 (https://www.python.org/downloads/)
+
+
+Fair chance it'll work on Windows 11 too, unless commands have changed.
+May work on earlier versions of Python 3, but no guarantees.
+
+
 Development Notes
 -----------------
-
 -Tested by myself on Windows 10 only
 
 -There are probably edge cases where you won't get a specific OEM name (the detailed / accurate name) for a device due to where the key is stored in the registry. I speifically designed this app around my own usage case of dual VKB joysticks and CH rudder pedals based on where their OEMName registry keys were found. I noticed some of my old Thrustmaster stuff that I'd used a while back had keys in different locations (and possibly didn't even have OEM name keys). It would take a lot of work to track down edge cases, and since this aspect isn't *super* essential to the program, anythingthat doesn't get a neat, clean OEM name will just be assigned a combo of the description + short ID as it's placeholder name. This should be functional enough for edge cases to at least get some idea of what device they represent.
