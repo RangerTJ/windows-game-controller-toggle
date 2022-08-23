@@ -36,6 +36,8 @@ Development Notes
 -Tested by myself on Windows 10 only
 
 -There are edge cases where you won't get a specific OEM name (the detailed / accurate name) for a device due to where the key is stored in the registry. I speifically designed this app around my own usage case of dual VKB joysticks and CH rudder pedals based on where their OEMName registry keys were found. I noticed some of my old Thrustmaster stuff that I'd used a while back had keys in different locations (and possibly didn't even have OEM name keys). It would take a lot of work to track down edge cases, and since this aspect isn't *super* essential to the program, anythingthat doesn't get a neat, clean OEM name will just be assigned a combo of the description + short ID as it's placeholder name. This should be functional enough for edge cases to at least get some idea of what device they represent.
+
+-Original intent was for text parse files to stay in the same folder as the python script and bat file, but for some reason windows is dumping them into the System32 folder right now. Need to investigate why this changed, when it was working as intended earlier in program development. It works fine, but I don't particularly like messing with stuff in the system folders if it can be avoided. Current files placed here are: ControllerCheck.txt and oem_name.txt
     
 
 Future Ideas:
