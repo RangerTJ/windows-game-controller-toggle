@@ -1,4 +1,4 @@
-# hid-toggle
+# Windows Game Controller Toggle
 
 What is this Program?
 ---------------------
