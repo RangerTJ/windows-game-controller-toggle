@@ -15,10 +15,12 @@ When prompted by the cmd interface, simply enter 'e' to enable or 'd' to disable
 Development Notes
 -----------------
 Testing Notes:
+
     *Tested on Windows 10 only
     *Only tested by myself on my own rig
 
 Future Ideas:
+
     *Disable specific device command
     *Enable specific device command
     *Add UI to make it prettier and not feel like an app from the days of DOS-based adventure games
