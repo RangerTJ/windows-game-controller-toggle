@@ -112,7 +112,6 @@ class ControllerCollection:
         # Clear non-controller devices from the dictionary
         del_list = []
         for device in self._device_dict:                                        # Filter out junk entries
-            # if self._device_dict[device].get_description() != "HID-compliant game controller":
             if self._device_dict[device].get_description() != "HID-compliant game controller" or \
                     self._device_dict[device].get_status() == "Disconnected":
                 del_list.append(device)
@@ -196,8 +195,6 @@ class ControllerCollection:
         # If an actual OEM name is found, parse it and assign it
         else:
             target_line = lines[2]
-                                                      # Start transcibing from first char of name
-
             oem_name = self._parse_oem_name(target_line)
             print(oem_name)
             oem_name_txt.close()
