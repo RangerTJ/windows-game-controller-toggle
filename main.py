@@ -1,8 +1,15 @@
-# Runs a script to generate a hardware summary text file, then parses the text file to store device information.
-# This is then used to run scripts that either enable or disable non-xbox controllers.
-# NOTE - THIS CURRENT VERSION HAS NOT BEEN TESTED AND PROBABLY WILL NOT WORK
-# (First pass converting pseudo-code to python script - expecting some potential range issues, inefficiencies,
-# problems calling MS cmd scripts due to how '\' is handled in quotes, etc.)
+# Author: Raptor2k1
+# Date: 8/22/2022
+
+# Description:  Uses Microsoft PNP Utility commands to generate a dictionary of plugged-in devices categorized
+#               as game controllers and uses registry querties to attempt to find a more detailed OEM name for
+#               the device (if it's available in the joystick directory of the registry). Dictionary objects are then
+#               used as references to either enable all or disable all plugged-in devices.
+
+# Note:         You must launch this .py script from a .bat file run as administrator to enable or disable anything.
+#               X-Box style controllers have a different description and should not be turned on/off by this
+#               program. The primary goal is to turn other peripherals (usually sim controllers) on/off as needed
+#               without screwing up key bindings or dealing with physically plugging in/unplugging devices.
 
 import subprocess
 
@@ -19,6 +26,7 @@ class InterfaceDevice:
         self._instance_id = ""
         self._short_id = ""
         self._description = ""
+        self._status = ""
         self._oem_name = ""
 
     # Set methods for all data members of a device object
@@ -30,6 +38,9 @@ class InterfaceDevice:
 
     def set_description(self, description: str):
         self._description = description
+
+    def set_status(self, status: str):
+        self._status = status
 
     def set_oem_name(self, oem_name: str):
         self._oem_name = oem_name
@@ -44,23 +55,26 @@ class InterfaceDevice:
     def get_description(self):
         return self._description
 
+    def get_status(self):
+        return self._status
+
     def get_oem_name(self):
         return self._oem_name
 
 
-class ComputerDevices:
+class ControllerCollection:
     """
     Represents the controller devices plugged into the computer. Contains a dictionary of devices keyed to their
     Instance ID (containing fields for their status and name).
 
     Contains methods to derive the ID and Status of a given device from the results of a cmd device list text file
     that results from querying game controllers with the Microsoft PnP Utility.
+    Has helper methods to assist in parsing text file data.
+    Also has a method to print a quick summary of toggle-able devices and whether they are Started or Disabled.
     """
 
     def __init__(self):
-        self._device_dict = dict()                                  # [0] is Short ID, [1] is device status
-                                                                    # [2] is device description, [3] is full name, and
-                                                                    # key is the full device Instance ID
+        self._device_dict = dict()
 
     def check_devices(self):
         """
@@ -72,16 +86,15 @@ class ComputerDevices:
         No parameters and no return. Modifies the class's underlying data directly.
         """
 
-        # subprocess.run('ControllerCheck.bat')                                # If running off external .bat
+        # Use pnputil command to get summary of all HID class devices detected by the PC and store in txt file
+        print("Capturing controller information...")
+        controller_summary = open('ControllerCheck.txt', 'w')
+        subprocess.run("pnputil /enum-devices /class HIDclass", stdout=controller_summary)
+        controller_summary.close()
 
-        # MAY NEED TO RE-EVALUATTE OUTPUT FILE PATH - DOES %~dp0 work for location of the python script?
-        # Log device information to ControllerCheck.txt and bring it back in so that we can parse it
-        # ERROR IN OPENING CONTROLLER CHECK - NOT FOUND SINCE NOT SAVING TO CORRECT PLACE
-        # MAY NEED TO LOOK INTO IMPORTING RESULTS INTO PYTHON AND WRITING FROM THERE?
-        # WILL BE AN ISSUE IN GET NAME TOO
-        subprocess.run("pnputil /enum-devices /class HIDclass > %~dp0ControllerCheck.txt 2>&1")
-        controller_summary = open('ControllerCheck.txt')                       # OPEN CONTROLLER SUMMARY TXT
-        current_device = None
+        # Open HID device summary txt file in read mode and parse it
+        controller_summary = open('ControllerCheck.txt', 'r')
+        device = None
         for line in controller_summary:
             if "Instance ID" in line:
                 device = self._parse_device_check_line(line)                    # Create object keyed to instance ID
@@ -98,45 +111,60 @@ class ComputerDevices:
 
         # Clear non-controller devices from the dictionary
         del_list = []
-        for device in self._device_dict:                                        # Note everything to be deleted
-            if device.get_description != "HID-compliant game controller":
+        for device in self._device_dict:                                        # Filter out junk entries
+            # if self._device_dict[device].get_description() != "HID-compliant game controller":
+            if self._device_dict[device].get_description() != "HID-compliant game controller" or \
+                    self._device_dict[device].get_status() == "Disconnected":
                 del_list.append(device)
         for device in del_list:                                                 # Delete everything on the delete list
-            del device
+            self._device_dict.pop(device)
 
         # Get OEM Names for any game controllers that remain
         for device in self._device_dict:
-            self._device_dict[device].set_oem_name(self._get_name(device))
+            self._device_dict[device].set_oem_name(self._get_name(self._device_dict[device]))
 
     def disable_controllers(self):
         """
-        Runs a command script to disable every controller in the HID device list that is currently started.
+        Runs a command script to disable every game controller in the HID device list that is currently started.
 
         No parameters or returns.
         """
 
         for device in self._device_dict:
-            if device.get_status == "Started":
-                disable_cmd = 'pnputil /disable-device ' + deviceget_instance_id + \
-                              ' "HID\VID_231D&PID_0201\\7&37d7a043&0&0000"'
+            if self._device_dict[device].get_status() == "Started":
+                disable_id = self._device_dict[device].get_instance_id()
+                disable_cmd = 'pnputil /disable-device ' + '"' + disable_id + '"'
                 subprocess.run(disable_cmd)
         self.check_devices()
 
-    def enable_controllers(self):  # AKA RESTORE THINGS TO "normal" status
+    def enable_controllers(self):
         """
-        Runs a command script to enable every controller in the HID device list that is currently disabled.
+        Runs a command script to enable every game controller in the HID device list that is currently disabled.
 
         No parameters or returns.
         """
 
         for device in self._device_dict:
-            if device.get_status == "Disabled":
-                enable_cmd = 'pnputil /enable-device ' + device.get_instance_id + \
-                             ' "HID\VID_231D&PID_0201\\7&37d7a043&0&0000"'
+            if self._device_dict[device].get_status() == "Disabled":
+                enable_id = self._device_dict[device].get_instance_id()
+                enable_cmd = 'pnputil /enable-device ' + '"' + enable_id + '"'
                 subprocess.run(enable_cmd)
         self.check_devices()
 
-    # SHOULD PROBABLY CHANGE TO USING OBJECT AS INPUT
+    def summarize_game_controllers(self):
+        """
+        Prints the currently-deteced toggle-able controllers and their status.
+
+        No parameters or returns.
+        """
+
+        print("\nStatus of Plugged-in Game Controllers:"
+              "\n--------------------------------------")
+        for device in self._device_dict:
+            status = self._device_dict[device].get_status()
+            name = self._device_dict[device].get_oem_name()
+            print(name + ": " + status)
+
     def _get_name(self, device: object) -> str:
         """
         Runs a registry query to using the device's short ID. Generates a text file containing the OEMName, parses it,
@@ -148,46 +176,62 @@ class ComputerDevices:
         Returns the OEM/Full name of the hardware device in question.
         """
 
-        oem_name_query = 'reg query "HKEY_CURRENT_USER\System\CurrentControlSet\Control\MediaProperties\
-                    \PrivateProperties\Joystick\OEM\\' + device.get_short_id + '" /v OEMName > %~dp0oem_name.txt 2>&1'
-        subprocess.run(oem_name_query)
-        oem_name_txt = open('ControllerCheck.txt')
+        # Capture OEM name if it's a joystick with its OEM name in the joystick section of the registry
+        oem_name = open('oem_name.txt', 'w')
+        device_id = device.get_short_id()
+        description = device.get_description()
+        oem_name_query = 'reg query "HKEY_CURRENT_USER\System\CurrentControlSet\Control\Media' \
+                         'Properties\PrivateProperties\Joystick\OEM\\' + device_id + '" ' + '/v OEMName'
+        subprocess.run(oem_name_query, stdout=oem_name, stderr=oem_name)
+        oem_name.close()
 
-        # When there's an error finding the target registry key for an OEM Name
-        if oem_name_txt[0] == "ERROR: The system was unable to find the specified registry key or value.":
-            print("Error finding the registry key for this device. Assigning placeholder name.")
-            return str(device.get_description + ": " + device.get_short_id)
+        # Parse OEM name output to assign the OEM name or a placeholder OEM name to the device
+        oem_name_txt = open('oem_name.txt', 'r')
+        lines = oem_name_txt.readlines()
 
-        # When no errors reported
+        # When there's an error finding the target registry key for an OEM Name, assing placeholder name
+        if "ERROR" in lines[0]:
+            return str(description + ": " + device_id)
+
+        # If an actual OEM name is found, parse it and assign it
         else:
-            target_line = oem_name_txt[2]
-            char_index = 26                                             # Start transcibing from first char index of name
-            oem_name = ""
-            while target_line[char_index] is not None:                  # Transcribe until chars stop
-                oem_name = oem_name + line[char_index]
-                char_index += 1
+            target_line = lines[2]
+                                                      # Start transcibing from first char of name
+
+            oem_name = self._parse_oem_name(target_line)
+            print(oem_name)
             oem_name_txt.close()
             return oem_name
 
-                # ORIGINAL PARSE METHOD - MAY KEEP IF START CHAR IS NOT STATIC - BUT GO STRAIGHT TO TARGET LINE INSTEAD OF FOR LOOP
-                # for line in oem_name_txt:
-                #     if "OEMName" in line:
-                #         char_index = 0
-                #         oem_name = ""
-                #         while line[char_index] == " ":  # Advance past initial spaces
-                #             char_index += 1
-                #         while line[char_index] != " ":  # Advance past OEMname
-                #             char_index = + 1
-                #         while line[char_index] == " ":  # Advance past spaces
-                #             char_index += 1
-                #         while line[char_index] != " ":  # Advance past reg_sz
-                #             char_index = + 1
-                #         while line[char_index] == " ":  # Advance past final spaces
-                #             char_index += 1
-                #         while line[char_index] is not None:  # Transcribe until chars stop
-                #             oem_name = oem_name + line[char_index]
-                #             char_index += 1
+    def _parse_oem_name(self, line: str) -> str:
+        """
+        Parses line 2 of the OEM name reg query results, which should look like:
+        "    OEMName    REG_SZ     DEVICE NAME HERE  "
 
+        Takes line a string (intended to be line 2 of the reg querty output text file) as a parameter.
+
+        Returns the actual device name portion of line 2 as a string, so it can be used by the _get_name method.
+        """
+
+        # Initialize char index tracker and blank string to build off of
+        char_index = 0
+        oem_name = ""
+
+        # Iterate through line 2 of oem_name.txt and transcribe the important part and return it
+        while line[char_index] == " ":                              # Skip over first blank spaces
+            char_index += 1
+        while line[char_index] != " ":                              # Skip over "OEMName" text
+            char_index += 1
+        while line[char_index] == " ":                              # Skip over second blank spaces
+            char_index += 1
+        while line[char_index] != " ":                              # Skip over "REG_SZ"
+            char_index += 1
+        while line[char_index] == " ":                              # Skip over third blank spaces
+            char_index += 1
+        while line[char_index] != "\n":                             # Transcribe until chars stop
+            oem_name = oem_name + line[char_index]
+            char_index += 1
+        return oem_name
 
     def _parse_device_check_line(self, line: str) -> str:
         """
@@ -207,7 +251,7 @@ class ComputerDevices:
         char_index += 1                                             # Move character to first space after colon
         while line[char_index] == " ":                              # Move character to first char after empty space
             char_index += 1
-        while line[char_index] is not None:                         # Transcribe chars until they stop existing
+        while line[char_index] != "\n":                             # Transcribe chars until they stop existing
             device_id = device_id + line[char_index]
             char_index += 1
         return device_id
@@ -236,72 +280,27 @@ class ComputerDevices:
                                                                     # retrieving the device's exact name.
 
 # Start up script - populate the device dictionary
-my_devices = ComputerDevices()
+my_devices = ControllerCollection()
 my_devices.check_devices()
+my_devices.summarize_game_controllers()
 
 # Prompt the user for a decision
-decision = input("Enter 'c' to check device status, 'e' to enable devices, or 'd' to disable devices.")
-if decision == "c":
-    my_devices.check_devices()
-elif decision == "e":
-    my_devices.enable_controllers()
+decision = input("Enter 'e' to enable devices or 'd' to disable devices. Enter any other value to quit.\n")
+if decision == "e":
+     my_devices.enable_controllers()
+     my_devices.summarize_game_controllers()
 elif decision == "d":
-    my_devices.disable_controllers()
+     my_devices.disable_controllers()
+     my_devices.summarize_game_controllers()
 # else:
-#     # May not be necessary? Print you may close application? Close command? Loop back for invalid inputs?
+#     # Future use
 
 
+# CURRENT EXPECTED ISSUES / FUTURE WORK
+# Specific lists of methods contained in classes in doc strings.
 
-
-
-# CURRENT EXPECTED ISSUES
-# Probably need to revamp parsing stop points / last lines
-# May be able to greatly simplify parsing of OEMName - check if the actual name always starts at the same char index
-    # May be index 24, 25, or 26?
-# Check syntax for \ within a quote to make sure they're used as expected
-# Need to add actual commands/scripts to run these when starting the app (e.g. prompt for enable/disable/check on boot)
-# Make sure methods are located where appropriate
-# Always do a check to build dictionary on program boot
-# ENABLE/DISABLE are going to need admin privledges... or just make sure core script is run as admin
-# Probably need to make batch file to call the script that can be run as admin
-# MAKE SURE X-Box controllers aren't being turned off too
-# For now: only turn off "HID-compliant game controller" description
-    # helper method to find last char in string if getting index errors or infinite loops with parsing?
-# FUTURE METHODS:
+# FUTURE METHODS / IDEAS:
     # Display device summaries (for each dict entry show device name + info)
-    # Mod to check summary - if error with getting name, just make description + short ID the name
     # Disable specific device command
     # Enable specific device command
-# clean up spaces at the end of transcribed chunks (any spaces after the last actual char)
-# **NOT EVERYTHING IN HID IS A JOYSTICK IN THE REGISTRY
-# Make sure txt saving actually saves to directory with .py file and not somewhere else... may need to tweak
-# MAKE EACH DEVICE AN OBJECT vs a list of traits (get/sets for long name, short name, status, desc)
-
-
-# THE PLAN
-# Parse Loop:
-# -------------
-# Before start, create empty device list
-# Skip index 0 and 1 move line pointer to row 3 (row index 2)
-# While first char != blank [terminate when a header is blank/end of devices]
-# ------
-# iteration_number = 0
-# else:
-# ------
-# -create new object named device_[iteration number]
-# -move line index until it hits colon, then skip spaces until hitting a char that's not a space (or until it hits index 200)
-# -if it hits something that's not a space, start transcribing char/moving index up by 1 until it hits a space again
-# -move row down 1 and do transcription method, output to description
-# -move row down 4 and transcribe method, output to status
-# -move row down 3 [puts it on what is either the first line of the new object, or the end if it's blank]
-# -append current object to device list
-# -iteration_number += 1
-#
-# Once this is finished
-# ---------------------
-# create empty dictionary of game controllers
-# for each objet in list/dict, if description == "HID-compliant game controller"
-# add to dictionary of game controllers keyed to InstanceID
-# [needs script] parse the InstanceID and return the chunk between HID\ and \[whatever comes after 2nd slash] to GeneralID (this will be compared against registry check to get actual name of the device)
-# for each device in the dictionary, do a registry search/check for the general ID (powershell)
-# [needs script] parse the returned data and set the device object's name field to the name that matches from the registry check.
+    
