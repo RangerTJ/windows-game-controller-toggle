@@ -111,9 +111,11 @@ class ControllerCollection:
 
         # Clear non-controller devices from the dictionary
         del_list = []
-        for device in self._device_dict:                                        # Filter out junk entries
+        for device in self._device_dict:                                        # Filter out irrelevants / blutooth
+            # if self._device_dict[device].get_description() != "HID-compliant game controller":
             if self._device_dict[device].get_description() != "HID-compliant game controller" or \
-                    self._device_dict[device].get_status() == "Disconnected":
+                    self._device_dict[device].get_status() == "Disconnected" or \
+                    "{" in self._device_dict[device].get_instance_id():
                 del_list.append(device)
         for device in del_list:                                                 # Delete everything on the delete list
             self._device_dict.pop(device)
@@ -289,3 +291,74 @@ if decision == "e":
 elif decision == "d":
      my_devices.disable_controllers()
      my_devices.summarize_game_controllers()
+# else:
+#     # Future use
+
+
+# CURRENT EXPECTED ISSUES / FUTURE WORK
+# Specific lists of methods contained in classes in doc strings.
+
+# FUTURE METHODS / IDEAS:
+    # Display device summaries (for each dict entry show device name + info)
+    # Disable specific device command
+    # Enable specific device command
+
+
+# To-Do Order
+    # Manual enable/disable using stored integers (don't cloes after running one of these commands)
+        # based on integer created for object when it's first added to dict
+    # Profiles (lists of object to keep on)
+
+
+# Profiles T0
+    # command to disable specific device
+        # need command to list all devices w/ corresponding number
+        # enter number to turn that specific device on/off
+        # enter e / s to enable/disable all
+    # assign device a number data member corresponding to when it's added (for targetted enable/disable)
+    # on boot, ask if loading profile
+        # if no - go to normal loop
+        # if yes - go to profile loop
+            # edit profile
+                # show profile devices
+                # ask if any devices should always be on
+            # load profile (checks device status against profile preference and turns stuff on/off to match)
+    # Profile object
+        # list of devices to keep on
+        # store within device collection?
+        # profile name data member
+        # has a function that disables everything not in the profile's always-on list
+
+
+# PREVENT BLUTOOTH BSOD - IF BRACKETED driver ID exists in a blutooth item, set it asidr
+    # if that same string is found in a game controller device, remove it from the device list
+    # Instance ID:                BTHENUM\{00001124-0000-1000-8000-00805f9b34fb}_VID&0002045e_PID&02e0\7&8034a16&0&987A144EC1BD_C00000000
+# Device Description:         Bluetooth XINPUT compatible input device
+# Class Name:                 HIDClass
+# Class GUID:                 {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
+# Manufacturer Name:          Microsoft
+# Status:                     Started
+# Driver Name:                xinputhid.inf
+
+# Instance ID:                HID\{00001124-0000-1000-8000-00805f9b34fb}&VID_045e&PID_02e0&IG_00\8&25cf0a69&1&0000
+# Device Description:         HID-compliant game controller
+# Class Name:                 HIDClass
+# Class GUID:                 {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
+# Manufacturer Name:          (Standard system devices)
+# Status:                     Started
+# Driver Name:                input.inf
+
+# Method 1
+# basically, capture string in brackets and store in a list, if string from list found in device ID, add to del list
+
+# Method 2
+# If Bluetooth in device description
+    # get string from bracketed part of ID
+    # search for bracketed string in all other dictionary ID's
+    # if found, add to del list
+
+# Method 3
+    # just add stuff with a "{" in it to del list
+
+# Future
+    # explore using GUIDs to get unique registry info instead? play with it when I have time
