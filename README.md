@@ -1,16 +1,17 @@
-# Windows Game Controller Toggle
+# Windows Game Controller Toggle - ALPHA v 0.2
 
 What is this Program?
 ---------------------
 In short, this program is designed to leave an X-Box controller (controller with a description of XINPUT compatible input device) running like normal*, while disabling all other game controllers currently connected to your Windows PC.
 
-WARNING: DO NOT ATTEMPT TO ENABLE OR DISABLE DEVICES WHILE A BLUTOOTH CONTROLLER IS CONNECTED. ISSUE FOUND WHERE THIS CAN LEAD TO BLUE SCREEN OF DEATH WHEN TRYING TO RECONNECT THE CONTROLLER.
-
 This program sidesteps issues with certain games where the games themselves are not programmed to handle multiple input devices, even if some devices are unused. Generally, this occurs in games designed around a console-style controller that don't know what to do when they also find other devices plugged in like joysticks, rudder pedals, etc. This disables unused devices via software to avoid conflicts and having to unplug/replug devices, which can really mess up painstakingly set up controller bindings in some games (*cough* Star Citizen *cough*). This is basically an automated way of going into Device Manger and right-clicking all the game controllers and disabling or enabling them, but without the tedium or having to guess at vague device descriptions and do it by hand every single time.
 
 Also, it lets me put my VKB joysticks sticks in time-out so that my PC can actually go into sleep mode.
 
-*Currently some first iteration issues - most X-box style controllers will be disabled/enabled with other devices. See work-around for blutooth/wireless controllers in "How Does it Work? / Development Notes. Wired controllers will probably have to wait for profile support.
+*Please bear in mind that this is a personal project in alphas status, and has had a relatively small test sample size of tested devices. There are some known first iteration issues - wired X-box style controllers will currently be disabled/enabled with other devices. Blutooth X-Box One controllers will be properly omitted from toggle status, but I haven't tested other controllers. Enabling/disabling blutooth controllers that sneak past the filter and show up as toggle-able can cause problems (see warning). While disabling/enabling devices generally doesn't cause issues, there remains the potential for edge cases of complex devices that are actually "multiple" devices (such as blutooth controllers), where enabling/disabling them using this approach might prove problematic, and potentially lead to fun things like Blue Screens of Death. So while I forsee this working as intended for the most part, beware there is potental for crashes and driver issues in edge cases.
+
+WARNING: IF A BLUTOOTH CONTROLLER APPEARS IN THE INITIAL CHECK'S TOGGLE-ABLE DEVICE LIST WHEN RUNNING THE PROGRAM, CLOSE IT IMMEDIATELY, DISCONNECT/POWER OFF THE BLUTOOTH CONTROLLER, THEN RUN THE PROGRAM AGAIN. DO NOT ENABLE OR DISABLE DEVICES WHILE A BLUTOOTH CONTROLLER IS DETECTED BY THIS PROGRAM AND DISPLAYING AS A TOGGLE-ABLE DEVICE. DISABLING/ENABLING THE CONTROLLER IS LIKELY TO RESULT IN BLUE SCREEN OF DEATH CRASHES WHEN ATTEMPTING TO CONNECT THE BLUTOOTH CONTROLLER AND REQUIRES MANUALLY FIXING THE ISSUE TO MAKE THE DEVICE USABLE AGAIN. 
+(See "I turned off something and it won't turn back on...", if this occurs)
 
 How Does it Work?
 ------------------
@@ -33,7 +34,9 @@ May work on earlier versions of Python 3, but no guarantees.
 
 Development Notes
 -----------------
--Current Priority Issue: ALL Controllers that are described as "HID-compliant game controller" will be disabled (currently happening to my own blutooth X-Box One Controller). To get around this will require profiles/flags and commands to enable/disable only specific devices, which I'd like to implement next. Oddly, disabling the blutooth-connected X-Box controller didn't disable it right away (recieved a message about requiring a restart before it would take effect... and I'm pretty sure this is related to the BSOD I'm getting when trying to re-connect it not). Current work-around is to just not turn on any blutooth controllers until after flight sticks are disabled, so they don't get caught in the crossfire.
+-Current Priority Issue: ALL wired controllers that are described as "HID-compliant game controller" will be disabled (currently happening to my own blutooth X-Box One Controller). To get around this will require profiles/flags and commands to enable/disable only specific devices, which I'd like to implement next. If you have a blutooth controller that is detected by the program, make sure that you turn it off and ensure that it doesn't show up in this program's initial device check. Failure to do so may result in perpetual BSOD issues until you clear out all the ghost controller entries in device manager (see "I turned off something and it won't turn back on..."). 
+
+-I believe I have a fix implemented now to prevent (at least some) blutooth controllers from showing up. As of right now, it's only been tested on my own x-box one blutooth controller and relies on an assumption about blutooth controllers having "{}" brackets in their Instance ID, which I cannot verify is the case 100% of the time, as of yet. In the case of my official X-Box blutooth controller, there appears to be at least 2 different devices that show up for it (both a blutooth x-input and game controller). The first iteration of this program disabled the game controller part and ignored the x-input part, and I suspect this is related to what caused the BSOD crashes. The game controller's Instance ID used brackets that appeared to reference the related x-input device, so the current fix is to just take any device with "{}" brackets in its Instance ID out of consideration for toggle-able status, since this appears to be a nomenclature used in pairing more complex controller setups. My current operating assumption is that brackets are used to reference the Instance ID of a blutooth controller. As a disclaimer, I have been unable to find documentation on this as of yet (so this assumption is based on observation device ID's), but it appears to resolve the issue in at least the case of the X-Box One controller, at least.
 
 -Tested by myself on Windows 10 only
 
@@ -48,12 +51,19 @@ Future Ideas:
     -Enable specific device command
     -Add UI to make it prettier and not feel like an app from the days of DOS-based adventure games
     -Ways to customize enable/disable profiles
+    -EXE file/installer to make things a bit cleaner / make it pinnable to taskbar
     
 
 "I turned off something and it won't turn back on..."
 -----------------------------------------------------
-If you're like me, you may have disabled an X-Box One blutooth controller. Apparently this makes Windows very mad and results in a blue screen of death every time you attempt to connect the controller. I resolved this following the suggestions on this post (top answer): 
+While testing my first version of this app, I disabled my blutooth X-Box One controller. Apparently this made Windows very mad and resulted in a blue screen of death every time I attempted to connect the controller. If you see a "need to restart for this change to take effect" type message pop up while running this program, this means something complex probably got messed with and you'll likely have to follow the link's suggestion to fix it. I resolved this following the suggestions on this post (top answer): 
 https://answers.microsoft.com/en-us/windows/forum/all/bsod-loop-after-installing-xbox-controller-drivers/31f3875c-0fd0-499d-9e86-788c666ce3f5
-Removing all the hidden HID and and phantom blutooth x-box controllers and forcing the controller to re-pair with Windows seemed to do the trick and I got mine working again. I strongly suggest making a point of *not* using this to enable or disable *anything* as long as a blutooth controller is active/paired. If you see a "need to restart for this change to take effect" type message pop up while running the program, this is likely to happen. I'm not entirely sure what the best fix for this is - I may look into making a filter that purposely blocks blutooth controllers from being processed, but I'm not sure if there's enough info in the report to make that happen. I've got a couple ideas, but I'm not sure if it'll work for all cases, as opposed to an XboX One controller, specifically.
+
+Removing all the hidden HID and and phantom blutooth x-box controllers and forcing the controller to re-pair with Windows seemed to do the trick and I got mine working again in ~1 hr (could do it in minutes now that I know what worked... or so I tell myself). I strongly suggest *not* using this program to enable or disable *anything* as long as a blutooth controller is active/paired. If you see one (or a device you suspect is one) on the check summary before you enable/disable the rest of your devices, make sure to close the program out completely and turn off your blutooth controller, as a work-around. I believe I now have a fix in place so taht this won't be necessary, but I cannot guarantee that it will work on all devices (since I have tested exactly *one* device).
 
 Anything *else* changed by this program should be fixable manually by just going into Device Manger and manually enabling/disabling affected devices. I don't think this should be an issue at all, but on the off chance it turns devices off and you can't get them to turn back on, just go to device manager, find the disabled device (likely under Human Interface Devices), right-click the disabled device and click "Enable Device" from the drop-down menu.
+
+
+Change Log
+----------
+8/24/22: X-Box One blutooth controllers *should* no longer show up in the list of devices that can be enabled/disabled. This is to prevent accidentally disabling the device and having to deal with resulting BSOD issues that linger when trying to connect the controller until corrupted/phantom devices are purged from device manager.
