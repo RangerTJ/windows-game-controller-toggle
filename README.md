@@ -64,6 +64,7 @@ Future Ideas:
 "I turned off something and it won't turn back on..."
 -----------------------------------------------------
 While testing my first version of this app, I disabled my blutooth X-Box One controller. Apparently this made Windows very mad and resulted in a blue screen of death every time I attempted to connect the controller. If you see a "need to restart for this change to take effect" type message pop up while running this program, this means something complex probably got messed with and you'll likely have to follow the link's suggestion to fix it. I resolved this following the suggestions on this post (top answer): 
+
 https://answers.microsoft.com/en-us/windows/forum/all/bsod-loop-after-installing-xbox-controller-drivers/31f3875c-0fd0-499d-9e86-788c666ce3f5
 
 Removing all the hidden HID and and phantom blutooth x-box controllers and forcing the controller to re-pair with Windows seemed to do the trick and I got mine working again in ~1 hr (could do it in minutes now that I know what worked... or so I tell myself). I strongly suggest *not* using this program to enable or disable *anything* as long as a blutooth controller is active/paired. If you see one (or a device you suspect is one) on the check summary before you enable/disable the rest of your devices, make sure to close the program out completely and turn off your blutooth controller, as a work-around. I believe I now have a fix in place so taht this won't be necessary, but I cannot guarantee that it will work on all devices (since I have tested exactly *one* device).
