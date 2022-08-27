@@ -10,7 +10,14 @@ Also, it lets me put my VKB joysticks sticks in time-out so that my PC can actua
 
 *Please bear in mind that this is a personal project in alphas status, and has had a relatively small test sample size of tested devices. There are some known first iteration issues - wired X-box style controllers will currently be disabled/enabled with other devices. Blutooth X-Box One controllers will be properly omitted from toggle status, but I haven't tested other controllers. Enabling/disabling blutooth controllers that sneak past the filter and show up as toggle-able can cause problems (see warning). While disabling/enabling devices generally doesn't cause issues, there remains the potential for edge cases of complex devices that are actually "multiple" devices (such as blutooth controllers), where enabling/disabling them using this approach might prove problematic, and potentially lead to fun things like Blue Screens of Death. So while I forsee this working as intended for the most part, beware there is potental for crashes and driver issues in edge cases.
 
-WARNING: IF A BLUTOOTH CONTROLLER APPEARS IN THE INITIAL CHECK'S TOGGLE-ABLE DEVICE LIST WHEN RUNNING THE PROGRAM, CLOSE IT IMMEDIATELY, DISCONNECT/POWER OFF THE BLUTOOTH CONTROLLER, THEN RUN THE PROGRAM AGAIN. DO NOT ENABLE OR DISABLE DEVICES WHILE A BLUTOOTH CONTROLLER IS DETECTED BY THIS PROGRAM AND DISPLAYING AS A TOGGLE-ABLE DEVICE. DISABLING/ENABLING THE CONTROLLER IS LIKELY TO RESULT IN BLUE SCREEN OF DEATH CRASHES WHEN ATTEMPTING TO CONNECT THE BLUTOOTH CONTROLLER AND REQUIRES MANUALLY FIXING THE ISSUE TO MAKE THE DEVICE USABLE AGAIN. 
+WARNING: 
+
+IF A BLUTOOTH CONTROLLER APPEARS IN THE INITIAL CHECK'S TOGGLE-ABLE DEVICE LIST WHEN RUNNING THE PROGRAM, CLOSE IT IMMEDIATELY, DISCONNECT/POWER OFF THE BLUTOOTH CONTROLLER, THEN RUN THE PROGRAM AGAIN. 
+
+DO NOT ENABLE OR DISABLE DEVICES WHILE A BLUTOOTH CONTROLLER IS DETECTED BY THIS PROGRAM AND DISPLAYING AS A TOGGLE-ABLE DEVICE. 
+
+DISABLING/ENABLING THE CONTROLLER IS LIKELY TO RESULT IN BLUE SCREEN OF DEATH CRASHES WHEN ATTEMPTING TO CONNECT THE BLUTOOTH CONTROLLER AND REQUIRES MANUALLY FIXING THE ISSUE TO MAKE THE DEVICE USABLE AGAIN. 
+
 (See "I turned off something and it won't turn back on...", if this occurs)
 
 How Does it Work?
