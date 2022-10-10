@@ -62,7 +62,7 @@ Future Ideas:
 
 "I turned off something and it won't turn back on..."
 -----------------------------------------------------
-While testing my first version of this app, I disabled my blutooth X-Box One controller. Apparently this made Windows very mad and resulted in a blue screen of death every time I attempted to connect the controller. If you see a "need to restart for this change to take effect" type message pop up while running this program, this means something complex probably got messed with and you'll likely have to follow the link's suggestion to fix it. I resolved this following the suggestions on this post (top answer):  
+While testing my first version of this app, I disabled my blutooth X-Box One controller. Apparently this made Windows very mad and resulted in a blue screen of death every time I attempted to connect the controller. If you see a "need to restart for this change to take effect" type message pop up while running this program, this means something complex probably got messed with and you'll likely have to follow the link's suggestion to fix it. Or a system rollback. It may not hurt to make new restore point just before running this the fist time, just in case you need to reset hardware status after enabling/disabling anything. A glowing endorsement by the author, I know, heh. I resolved this following the suggestions on this post (top answer):  
 
 https://answers.microsoft.com/en-us/windows/forum/all/bsod-loop-after-installing-xbox-controller-drivers/31f3875c-0fd0-499d-9e86-788c666ce3f5  
 
