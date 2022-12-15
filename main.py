@@ -291,4 +291,4 @@ elif decision == "d":
     my_devices.summarize_game_controllers()
 
 # Additional functionality to keep window open long enough / pause closing until key pressed
-input("\nProcess Complete! Press any key to continue closing the program.")
+input("\nProcess Complete! Press 'Enter' to exit the program.")
