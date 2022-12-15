@@ -18,7 +18,7 @@ If you do run the enable/disable script while a blutooth (and probably any multi
 
 How Does it Work?
 ------------------
-Just place "ControllerToggle.exe" wherever is convenient and run it as an administrator! You can run the progrma without admin support as well, just you'll get an error when trying to turn hardware on on or off. You can still view the summary of currently plugged in toggle-able devices and their current status, even without admin mode. Since this *does* requires admin rights, I encourage you to check out the source code, so you can be sure that everything is kosher.
+Just place "ControllerToggle.exe" wherever is convenient and run it as an administrator! You can run the progrma without admin support as well, just you'll get an error when trying to turn hardware on on or off. You can still view the summary of currently plugged in toggle-able devices and their current status, even without admin mode. Since this *does* requires admin rights, I encourage you to check out the source code (the .exe is a pyinstaller package that runs main.py), so you can be sure that everything is kosher.
 
 When prompted by the cmd interface, simply enter 'e' to enable or 'd' to disable, followed by enter! You should get a printout of whether or not the command worked for each affected device, and a summary of device status. After the input screen has passed, just hit "enter" again to close the console and the application.
 
