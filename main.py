@@ -1,12 +1,12 @@
 # Author: Raptor2k1
-# Date: 8/24/2022
+# Date: 12/14/2022
 
 # Description:  Uses Microsoft PNP Utility commands to generate a dictionary of plugged-in devices categorized
-#               as game controllers and uses registry querties to attempt to find a more detailed OEM name for
+#               as game controllers and uses registry queries to attempt to find a more detailed OEM Name for
 #               the device (if it's available in the joystick directory of the registry). Dictionary objects are then
 #               used as references to either enable all or disable all plugged-in devices.
 
-# Note:         You must launch this .py script from a .bat file run as administrator to enable or disable anything.
+# Note:         This script must be run with elevated (admin) privileges to support device enabling/disabling.
 #               X-Box style controllers have a different description and should not be turned on/off by this
 #               program. The primary goal is to turn other peripherals (usually sim controllers) on/off as needed
 #               without screwing up key bindings or dealing with physically plugging in/unplugging devices.
@@ -88,14 +88,14 @@ class ControllerCollection:
 
         # Use pnputil command to get summary of all HID class devices detected by the PC and store in txt file
         print("Capturing controller information...")
-        controller_summary = open('ControllerCheck.txt', 'w')
-        subprocess.run("pnputil /enum-devices /class HIDclass", stdout=controller_summary)
-        controller_summary.close()
+        controller_summary = subprocess.run("pnputil /enum-devices /class HIDclass", capture_output=True, text=True)
+        controller_summary_lines_table = controller_summary.stdout.splitlines()
 
         # Open HID device summary txt file in read mode and parse it
-        controller_summary = open('ControllerCheck.txt', 'r')
         device = None
-        for line in controller_summary:
+
+        for line in controller_summary_lines_table:
+
             if "Instance ID" in line:
                 device = self._parse_device_check_line(line)                    # Create object keyed to instance ID
                 self._device_dict[device] = InterfaceDevice()                   # Set instance ID and short ID
@@ -107,16 +107,15 @@ class ControllerCollection:
             if "Device Description:" in line:                                   # Set description
                 description = self._parse_device_check_line(line)
                 self._device_dict[device].set_description(description)
-        controller_summary.close()                                              # CLOSE CONTROLLER SUMMARY TXT
 
         # Clear non-controller devices from the dictionary
         del_list = []
-        for device in self._device_dict:                                        # Filter out irrelevants / blutooth
+        for device in self._device_dict:                                        # Filter out irrelevant or bluetooth
             if self._device_dict[device].get_description() != "HID-compliant game controller" or \
                     self._device_dict[device].get_status() == "Disconnected" or \
                     "{" in self._device_dict[device].get_instance_id():
                 del_list.append(device)
-        for device in del_list:                                                 # Delete everything on the delete list
+        for device in del_list:                                                 # Delete everything in delete list
             self._device_dict.pop(device)
 
         # Get OEM Names for any game controllers that remain
@@ -153,7 +152,7 @@ class ControllerCollection:
 
     def summarize_game_controllers(self):
         """
-        Prints the currently-deteced toggle-able controllers and their status.
+        Prints the currently-detected toggle-able controllers and their status.
 
         No parameters or returns.
         """
@@ -176,44 +175,40 @@ class ControllerCollection:
         Returns the OEM/Full name of the hardware device in question.
         """
 
-        # Capture OEM name if it's a joystick with its OEM name in the joystick section of the registry
-        oem_name = open('oem_name.txt', 'w')
+        # Capture OEM name if it's a joystick with its OEM Name in the joystick section of the registry
         device_id = device.get_short_id()
         description = device.get_description()
         oem_name_query = 'reg query "HKEY_CURRENT_USER\System\CurrentControlSet\Control\Media' \
                          'Properties\PrivateProperties\Joystick\OEM\\' + device_id + '" ' + '/v OEMName'
-        subprocess.run(oem_name_query, stdout=oem_name, stderr=oem_name)
-        oem_name.close()
+        oem_name = subprocess.run(oem_name_query, capture_output=True, text=True)
+        oem_name_lines_table = oem_name.stdout.splitlines()
 
-        # Parse OEM name output to assign the OEM name or a placeholder OEM name to the device
-        oem_name_txt = open('oem_name.txt', 'r')
-        lines = oem_name_txt.readlines()
-
-        # When there's an error finding the target registry key for an OEM Name, assing placeholder name
-        if "ERROR" in lines[0]:
+        # When there's an error finding the target registry key for an OEM Name, assign placeholder name
+        if "ERROR" in oem_name_lines_table[0]:
             return str(description + ": " + device_id)
 
         # If an actual OEM name is found, parse it and assign it
         else:
-            target_line = lines[2]
+            target_line = oem_name_lines_table[2]
             oem_name = self._parse_oem_name(target_line)
             print(oem_name)
-            oem_name_txt.close()
             return oem_name
 
-    def _parse_oem_name(self, line: str) -> str:
+    @staticmethod
+    def _parse_oem_name(line: str) -> str:
         """
         Parses line 2 of the OEM name reg query results, which should look like:
         "    OEMName    REG_SZ     DEVICE NAME HERE  "
 
-        Takes line a string (intended to be line 2 of the reg querty output text file) as a parameter.
+        Takes line a string (intended to be line 2 of the reg query output text file) as a parameter.
 
         Returns the actual device name portion of line 2 as a string, so it can be used by the _get_name method.
         """
 
-        # Initialize char index tracker and blank string to build off of
+        # Initialize char index tracker and blank string to build on
         char_index = 0
         oem_name = ""
+        length = len(line)
 
         # Iterate through line 2 of oem_name.txt and transcribe the important part and return it
         while line[char_index] == " ":                              # Skip over first blank spaces
@@ -226,22 +221,24 @@ class ControllerCollection:
             char_index += 1
         while line[char_index] == " ":                              # Skip over third blank spaces
             char_index += 1
-        while line[char_index] != "\n":                             # Transcribe until chars stop
+        while char_index < length:                                  # Transcribe until chars stop
             oem_name = oem_name + line[char_index]
             char_index += 1
         return oem_name
 
-    def _parse_device_check_line(self, line: str) -> str:
+    @staticmethod
+    def _parse_device_check_line(line: str) -> str:
         """
         Parses a single line of a PnP Utility text file info dump and returns the string that follows the category
         label and empty spaces, so that only the relevant/needed characters of that line are stored in the device
         dictionary.
 
-        Parameter "line" refers to the line to be parsed for it's relevant information.
+        Parameter "line" refers to the line to be parsed for its relevant information.
 
         Returns the actual data stored on a line without the label and empty spaces.
         """
 
+        length = len(line)
         device_id = ""
         char_index = 0
         while line[char_index] != ":":                              # Advance until end of label
@@ -249,12 +246,13 @@ class ControllerCollection:
         char_index += 1                                             # Move character to first space after colon
         while line[char_index] == " ":                              # Move character to first char after empty space
             char_index += 1
-        while line[char_index] != "\n":                             # Transcribe chars until they stop existing
+        while char_index < length:                                  # Transcribe chars until they stop existing
             device_id = device_id + line[char_index]
             char_index += 1
         return device_id
 
-    def _parse_for_short_id(self, line: str) -> str:
+    @staticmethod
+    def _parse_for_short_id(line: str) -> str:
         """
         Returns the "short" ID for a device, that can then be plugged into a command to return parsable
         data to identify the specific name of the device in the Instance ID key (since it is not output with
@@ -274,8 +272,8 @@ class ControllerCollection:
         while line[char_index] != "\\":                             # Transcribe everything prior to the next '\'
             device_id = device_id + line[char_index]
             char_index += 1
-        return device_id                                            # Return the short ID for the device for use in
-                                                                    # retrieving the device's exact name.
+        return device_id                                            # Return short ID for getting exact device name
+
 
 # Start up script - populate the device dictionary
 my_devices = ControllerCollection()
@@ -283,10 +281,14 @@ my_devices.check_devices()
 my_devices.summarize_game_controllers()
 
 # Prompt the user for a decision
-decision = input("Enter 'e' to enable devices or 'd' to disable devices. Enter any other value to quit.\n")
+decision = input("Input 'e' to enable devices or 'd' to disable devices. Input any other value to quit.\n"
+                 "Select choice and hit Enter to confirm: ")
 if decision == "e":
-     my_devices.enable_controllers()
-     my_devices.summarize_game_controllers()
+    my_devices.enable_controllers()
+    my_devices.summarize_game_controllers()
 elif decision == "d":
-     my_devices.disable_controllers()
-     my_devices.summarize_game_controllers()
+    my_devices.disable_controllers()
+    my_devices.summarize_game_controllers()
+
+# Additional functionality to keep window open long enough / pause closing until key pressed
+input("\nProcess Complete! Press any key to continue closing the program.")
