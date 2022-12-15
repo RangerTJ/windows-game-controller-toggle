@@ -69,5 +69,6 @@ Anything *else* changed by this program should be fixable manually by just going
 
 Change Log
 ----------
+12/14/22: All text-parsing handled internally in python script. Now completely self contained in .exe file as well, so no more .bat file wonkiness!
 12/14/22: Fixed issue that resulted in the .bat file failing to load in certain directories (basically any directory other than the one initially tested).
 8/24/22: X-Box One blutooth controllers *should* no longer show up in the list of devices that can be enabled/disabled. This is to prevent accidentally disabling the device and having to deal with resulting BSOD issues that linger when trying to connect the controller until corrupted/phantom devices are purged from device manager.  
