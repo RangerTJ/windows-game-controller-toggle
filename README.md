@@ -57,6 +57,7 @@ Known Issues:
 Future Ideas:
 
     * Parse shell commmand output entirely within python script, so no text file output is necessary
+    * Convert .bat and .py into unified .exe
     * Disable specific device command  
     * Enable specific device command  
     * Add GUI to make it prettier and not feel like an app from the days of DOS-based adventure games  
