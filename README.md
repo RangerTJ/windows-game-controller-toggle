@@ -22,8 +22,8 @@ Just place "main.py" and "Toggle Device (run as admin).bat" in the same folder a
 
 When prompted by the cmd interface, simply enter 'e' to enable or 'd' to disable, followed by enter! You should get a printout of whether or not the command worked for each affected device, and a summary of device status.
 
-If you'd like to be able to pin this to the start menu or taskbar, just make a shortcut that runs CMD and points it to the .bat file, with admin privleges.
-Ex. C:\Windows\System32\cmd.exe /C "C:\Users\yourusernamehere\ControllerToggle\Toggle Device (run as admin).bat"
+If you'd like to be able to pin this to the start menu or taskbar, just make a shortcut (with admin privledges) that runs CMD and points it to the .bat file.
+Example Shortcut Path: C:\Windows\System32\cmd.exe /C "C:\ControllerToggle\Toggle Device (run as admin).bat"
 
 
 Requirements
