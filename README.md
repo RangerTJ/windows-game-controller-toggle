@@ -1,4 +1,4 @@
-# Windows Game Controller Toggle v1.0
+# Windows Game Controller Toggle
 
 What is this Program?
 ---------------------
