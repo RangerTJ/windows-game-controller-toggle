@@ -1,4 +1,4 @@
-# Windows Game Controller Toggle - ALPHA v 1.0
+# Windows Game Controller Toggle - v1.0
 
 What is this Program?
 ---------------------
