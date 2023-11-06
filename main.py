@@ -1,5 +1,5 @@
-# Author: Raptor2k1
-# Date: 12/14/2022
+# Author: RangerTJ
+# Date: 11/6/2023
 
 # Description:  Uses Microsoft PNP Utility commands to generate a dictionary of plugged-in devices categorized
 #               as game controllers and uses registry queries to attempt to find a more detailed OEM Name for
