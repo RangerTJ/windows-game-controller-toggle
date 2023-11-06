@@ -7,9 +7,10 @@
 #               used as references to either enable all or disable all plugged-in devices.
 
 # Note:         This script must be run with elevated (admin) privileges to support device enabling/disabling.
-#               X-Box style controllers have a different description and should not be turned on/off by this
-#               program. The primary goal is to turn other peripherals (usually sim controllers) on/off as needed
+#               The primary goal is to turn other peripherals (usually sim controllers) on/off as needed
 #               without screwing up key bindings or dealing with physically plugging in/unplugging devices.
+#               For now, it is suggested to turn off or unplug any console-stylec ontroller when toggling devices
+#               on or off to avoid potential crashes.
 
 import subprocess
 
